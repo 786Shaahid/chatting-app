@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Char App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body{
+        display: flex;
+        /* align-items: center; */
+        justify-content: center;
+        min-height: 100vh;
+        background: #F8F8F8;
+        font-family:'Roboto',sans-serif ;
+      }
+      section.chat_section{
+        width: 600px;
+        max-width: 90%;
+        background: #fff;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),0 4px 6px -2px rgba(3, 4, 5,0.1);
+      }
+        .brand{
+            padding: 20px;
+            background: rgb(34,32,32);
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+        } 
+
+      .brand h1{
+        font-size: 20px;
+        color: white;
+        font-family: bold;
+        margin-left: 10px;
+      }
+      .message_area{
+        height: 500px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        padding-top:40px ;
+      }
+      textarea{
+        width: 75%;
+        border: none;
+        font-size: 25px;
+        outline: none;
+        background: #FBFBFB;
+      }
+      .message{
+        padding: 20px;
+        border-radius: 4px;
+        margin-bottom: 30px;
+        max-width: 300px;
+        position: relative;
+      }
+      .incoming{
+        background: #8f8be8;
+        color: #fff;
+      }
+      .outgoing{
+        background: #e9eafd;
+        color: #787986;
+        margin-left: auto;
+
+      }
+      .message h4 {
+        position: relative;
+        top: -20px;
+        left: 0;
+        color: #333;
+        font-size: 14px;
+      }
+      button{
+        width: 50px;
+        height: 50px;
+        outline:none ;
+        border-style: hidden  ;
+      }
+      button:active{
+       background-color: #554ed2;
+        border-radius: 50%;
+      }
+      #input-box{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      i {
+        font-size: 40px;
+       }
+    </style>
+  </head>
+  <body>
+    <section class="chat_section">
+      <div class="brand">
+        <h1>Whats App</h1>
+      </div>
+      <div class="message_area"></div>
+      <div id="input-box">
+        <textarea
+          id="textarea"
+          cols="30"
+          rows="2"
+          placeholder="Write message here..."      
+        ></textarea>
+        <button type="submit" id="send-btn">  <i class="fa-sharp fa-solid fa-paper-plane"></i></button>
+      </div>
+    </section>
+
+    <script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  let name;
+  let messageArea=document.querySelector('.message_area');
+  let textarea=document.querySelector('#textarea');
+  let sendBtn=document.querySelector('#send-btn');
+  do{
+    name=prompt(" Please Enter Your Name ");
+  }while(!name)
+  
+  sendBtn.addEventListener('click',(e)=>{
+    let textareaMessage=document.querySelector('#textarea').value;
+            sendMessage(textareaMessage); 
+      
+  }) 
+
+
+  function sendMessage(inputMessage){
+      const mes={
+        name:name,
+        message:inputMessage
+      }
+      appendMessage(mes,'outgoing');
+      textarea.value=''
+      scroll()
+      socket.emit('message',mes)
+  }
+ 
+  function appendMessage(msg,messageType){
+    let division=document.createElement('div');
+    let className=messageType;
+    division.classList.add(className ,'message');
+    let markup=`
+      <h4>${msg.name}</h4> 
+      <p>${msg.message}</p>
+    `
+    division.innerHTML=markup;
+     
+    messageArea.appendChild(division)
+  }
+  socket.on('message',(msg)=>{
+      appendMessage(msg,'incoming')
+      scroll()
+  })
+ function scroll(){
+  messageArea.scrollTop=messageArea.scrollHeight;
+ }
+</script>
+  </body>
+</html>
